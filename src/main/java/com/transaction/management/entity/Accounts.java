@@ -1,6 +1,6 @@
 package com.transaction.management.entity;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,15 +11,22 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "account",schema = "fraud_detection_db")
 public class Accounts {
 
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String user_id;
+    @Column(name= "user_id")
+    private Long user_id;
 
-    private String account_number;
+    @Column(name= "account_number")
+    private String accountNumber;
 
+    @Column(name= "ifsc_code")
     private String ifsc_code;
 
+    @Column(name= "balance")
     private Double balance;
 }

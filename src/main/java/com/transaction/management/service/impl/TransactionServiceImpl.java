@@ -2,8 +2,9 @@ package com.transaction.management.service.impl;
 
 import com.transaction.management.constants.Constants;
 import com.transaction.management.entity.AccountUserAuth;
+import com.transaction.management.entity.Permission;
 import com.transaction.management.entity.Transactions;
-import com.transaction.management.enums.Permission;
+import com.transaction.management.enums.Permissions;
 import com.transaction.management.kafka.producer.NotificationServiceProducer;
 import com.transaction.management.repository.AccountsRepository;
 import com.transaction.management.repository.TransactionRepository;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -60,12 +62,17 @@ public class TransactionServiceImpl implements TransactionService {
         if(!accountUserAuth.getAccountEnabled()){
             throw new Exception("User Account is Blocked, no Transaction Possible!!");
         }
-        Permission type = Permission.valueOf(transactionRequest.getTransactionType());
+        Permissions type = Permissions.valueOf(transactionRequest.getTransactionType());
         transactionRequestValidator.validateTransactionRequest(transactionRequest);
-        Set<Permission> allowedPermissions = accountUserAuth.getUser().getPermissions();
-        if(allowedPermissions.contains(Permission.valueOf(transactionRequest.getTransactionType()))){
+        Set<String> allowedPermissionNames = accountUserAuth.getUser()
+                .getPermissions()
+                .stream()
+                .map(Permission::getName)
+                .collect(Collectors.toSet());
+
+        if(allowedPermissionNames.contains(transactionRequest.getTransactionType())){
             switch (type) {
-                case Permission.DEPOSIT:
+                case Permissions.DEPOSIT:
                     Optional<Accounts> accountsDepositOptional = accountsRepository.findByAccountNumber(transactionRequest.getSenderAccount());
                     if(Objects.equals(makeRestCallToFraud(transactionRequest).getStatus(), Constants.SUCCESSFUL)) {
                         notificationServiceProducer.send(topic, String.valueOf(userId), getNotificationResponse(userId, Constants.SUCCESSFUL));
@@ -83,7 +90,7 @@ public class TransactionServiceImpl implements TransactionService {
                     saveTransaction(userId, transactionRequest);
                     break;
 
-                case Permission.TRANSFER:
+                case Permissions.TRANSFER:
                     Optional<Accounts> senderOptional = accountsRepository.findByAccountNumber(transactionRequest.getSenderAccount());
                     Optional<Accounts> receiverOptional = accountsRepository.findByAccountNumber(transactionRequest.getReceiverAccount());
                     if (senderOptional.isPresent() && receiverOptional.isPresent()) {
@@ -111,7 +118,7 @@ public class TransactionServiceImpl implements TransactionService {
                     }
                     break;
 
-                case Permission.WITHDRAWAL:
+                case Permissions.WITHDRAWAL:
                     Optional<Accounts> accountsWithdrawalOptional = accountsRepository.findByAccountNumber(transactionRequest.getSenderAccount());
                     if (accountsWithdrawalOptional.isPresent()) {
                         Accounts accounts = accountsWithdrawalOptional.get();

@@ -1,0 +1,82 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /transaction-service
+
+spring:
+  application:
+    name: transaction-service-management
+  datasource:
+    url: jdbc:mysql://mysql-22cbfef7-scalable-services-assignment-01042025.c.aivencloud.com:11181/fraud_detection_db?useSSL=true&requireSSL=true&verifyServerCertificate=false&serverTimezone=UTC
+    username: avnadmin
+    password: AVNS_beR7beLStdrPaO5btIS
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  profiles:
+    active: local
+
+jakarta.persistence.jdbc.url: jdbc:mysql://mysql-22cbfef7-scalable-services-assignment-01042025.c.aivencloud.com:11181/fraud_detection_db?useSSL=true&requireSSL=true&verifyServerCertificate=false&serverTimezone=UTC
+
+kafka:
+  transaction:
+    topic: transaction-notification
+    servers: localhost:9092
+    producerAck: 1
+    batchSize: 16384
+    lingerMs: 1000
+    maxRequestSize: 1048576
+    bufferMemory: 33554432
+    maxBlockMs: 60000
+    compression_type: snappy
+    requests_per_connection: 5
+    max_retries: 3
+    max_age_ms: 60000
+    max_idle_ms: 60000
+
+
+
+logging:
+  level:
+    org.springframework: INFO
+    com.yourpackage: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+
+# Swagger configuration (if you're using springdoc-openapi)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+user:
+  account:
+    url: http://localhost:8080/api/account/
+
+fraud:
+  check:
+    url: http://localhost:8082/api/fraud/check
+
+
+
+
+

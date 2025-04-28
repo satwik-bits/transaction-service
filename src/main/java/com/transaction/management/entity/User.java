@@ -2,7 +2,7 @@ package com.transaction.management.entity;
 
 
 
-import com.transaction.management.enums.Permission;
+import com.transaction.management.enums.Permissions;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
