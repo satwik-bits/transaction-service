@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-management-deployment
+  labels:
+    app: transaction-management
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transaction-management
+  template:
+    metadata:
+      labels:
+        app: transaction-management
+    spec:
+      containers:
+        - name: transaction-management-container
+          image: your-dockerhub-username/transaction-management-service:1.0.0
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-service:3306/your_database
+            - name: SPRING_DATASOURCE_USERNAME
+              value: your_db_user
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: your_db_password
+            - name: SPRING_PROFILES_ACTIVE
+              value: default
